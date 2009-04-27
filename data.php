@@ -15,6 +15,8 @@ $tableset=fetchset($sql,$database,PDO::FETCH_NUM);
 
 foreach($tableset as $t){
 	if(!(substr($t[1],0,2)=='__')){ // administrative tables are marked with __admin__
+		$t[1]=preg_replace('/; Inno.*/','',$t[1]);
+		$t[0]=preg_replace("/^$prefix/",'',$t[0]);
 		$tables[$t[0]]=$t[1]?$t[1]:$t[0]; // Makes an array table_name => table_comment if table_comment is defined, else table_name => table_name
 	}
 }
@@ -25,7 +27,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 	$smarty->assign('logonerror',$logonerror);
 	$smarty->display('login.tpl');
 }else{ // Start the real work
-	$name=$_COOKIE['username'];
+	$username=$_COOKIE['username'];
 	$userid=$_COOKIE['userid'];
 	$table=$_REQUEST['table']; // table and id may either come from  get /when going to a new record / or post, when updating a record
 	$id=$_REQUEST['id'];
@@ -35,19 +37,17 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			throw new Exception('Out');
 		}
 		if(!$tables[$table]){throw new Exception('Invalidtable');} // This should not happen unless someone is typing in table names directly
-		$smarty->assign('table',$tables[$table]);
+		$smarty->assign('tablename',$tables[$table]);
+		$smarty->assign('table',$table);
 		$smarty->assign('tableid',$tables[$table].'id');
 		$tablefields=fetchset("show COLUMNS FROM $table",'');
 		if($_POST['submitdata']=='Search'){
 			$searchsql="select id, name from $table where true ";
 			$nsql="select count(id) from $table where true ";
-			//debug($tablefields);
-			//debug($_POST);
 			$searchfields=array();
 			$_POST['username']='';
 			$sqltail='';
 			foreach($tablefields as $field){
-				//debug($_POST[$field['Field']]);
 				if(strlen($_POST[$field['Field']])){
 					$sqltail.="and ${field['Field']} like ? ";
 					$searchfields[]=$_POST[$field['Field']];
@@ -61,6 +61,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		}
 		
 		if($_GET['mode']=='list'){
+		// TODO: Må kunne bla i resultater fra et søk. Detter over i hele tabellen nå.
 			$nsql=$nsql?$nsql:"select count(id) n from $table";
 			$ntot=fetchset($nsql,$searchfields,PDO::FETCH_NUM);
 			//debug($ntot);
@@ -98,10 +99,18 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$len=min($len,MAXFIELDSIZE); 
 			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;}
 			$tablefields[$i]['length']=$len;
-			if(substr($tablefields[$i]['Field'],-2)=='id'){
+			if(substr($tablefields[$i]['Field'],-2)=='id' and (strlen($tablefields[$i]['Field'])>2)){
 				$tablefields[$i]['main']=substr($tablefields[$i]['Field'],0,-2);
+				$tablefields[$i]['Field']=$tablefields[$i]['main']; // Removes the id also from the field name
+			}
+			//debug("val_".$tablefields[$i]['Field']);
+			//debug($_GET["val_".$tablefields[$i]['Field'].'id']);
+			if($_GET["val_".$tablefields[$i]['Field'].'id']){
+			//	huh();
+				$tablefields[$i]['Value']=$_GET["val_".$tablefields[$i]['Field'].'id'];
 			}
 		}
+		//debug($tablefields);
 		if($_GET['mode']=='search'){
 			$template='displaydata.tpl';
 			$smarty->assign('p',$tablefields);
@@ -111,7 +120,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		if($_POST['submitdata']=='Store'){
 			$fieldlist='';	
 			$update=strlen($id);
-			if(!$update){
+			if(!$update ){ // AMAPdb   -> must also check if id is numeric..
 				if($_POST['name']){
 					$id=createid($_POST['name'],$table);
 					$_POST['id']=$id;
@@ -139,7 +148,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			//debug($sql);	
 			if($update){
 				if(tableexists("${table}_log",$database)){ // updates are to be logged, that is, the old version is stored with the current timestamp
-					$sql="insert into ${table}_log select null,${table}.*,null,'$name' from $table where $table.id=?";
+					$sql="insert into ${table}_log select null,${table}.*,null,'$username' from $table where $table.id=?";
 					$sqlh=$dbh->prepare($sql);
 					$sqlh->execute(array($id));
 					$error=$sqlh->errorInfo();
@@ -187,21 +196,21 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				'->>'=>"select max(id) from $table"
 				);
 		
-		$browse='|';
+		$browse='<ul class="horizmenu">';
 		foreach($sqls as $key=>$sql){
 			$goto=fetchset($sql,$recname);
 			$subtab=$_GET['subtab']?"&subtab=${_GET['subtab']}":'';
-			$browse.=" <a href=\"data.php?table=$table&id=${goto[0]}$subtab\">$key</a> |";
+			$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&id=${goto[0]}$subtab\">$key</a> </li>";
 		}
 		
 		$offset=fetchset("select count(id) from $table where $sortfield < ?",$recname);
-		$browse.=" <a href=\"data.php?table=$table&offset=$offset[0]&mode=list\">List</a> |";
-		$browse.=" <a href=\"data.php?table=$table&amp;id=0\">Add</a> |";
-		$browse.=" <a href=\"data.php?table=$table&amp;mode=search\">Search</a> |</p>";
-		$browse.='<p>';
-		$tables=fetchset("SELECT table_name FROM information_schema.`COLUMNS` C where table_schema=? and column_name='${table}id' and table_name not like '%\_%' ",$database,PDO::FETCH_ASSOC,false);
+		$browse.="<li> <a href=\"data.php?table=$table&offset=$offset[0]&mode=list\">List</a> </li>";
+		$browse.="<li> <a href=\"data.php?table=$table&amp;id=0\">Add</a></li>";
+		$browse.="<li> <a href=\"data.php?table=$table&amp;mode=search\">Search</a> </li>";
+		$browse.='</ul><p>';
+		$subtables=fetchset("SELECT table_name FROM information_schema.`COLUMNS` C where table_schema=? and column_name='${table}id' and table_name not like '%\_%' ",$database,PDO::FETCH_ASSOC,false);
 //debug($tables);
-		foreach($tables as $tab){
+		foreach($subtables as $tab){
 			$ta=$tab['table_name'];
 			$browse.=sprintf('%s |<a href="data.php?table=%s">browse</a>|<a href="data.php?table=%s&subtab=%s&id=%s">subtable</a>|<br />',$ta,$ta,$table,$ta,$id);
 		}
@@ -211,7 +220,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		$template='displaydata.tpl';
 		if($_GET['subtab']){
 			$subtable="${_GET['subtab']}_e"; // if a $subtable_e view exists, then we prefer to use that, if not we'll use the 'raw' table
-			if(tableexists($subtable)){
+			//debug($subtable);
+			if(tableexists($subtable,$database)){
 				$sql="select s.* from $subtable s,${_GET['subtab']} m where m.${table}id=? and m.id=s.id";
 			}else{
 				$sql="select s.* from ${_GET['subtab']} s where ${table}id=?";
@@ -239,11 +249,12 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 //	debug($p);
 	if($template=='listtables.tpl'){
 		$smarty->assign('tables',$tables);
+		$smarty->assign('refbase',$_SERVER['PHP_SELF'].'?mode=list&table=');
 	}else{
 		//debug($tablefields);
 		$smarty->assign('userid',$userid);  		// The userid, to be put away in a hidden field 
 		$smarty->assign('today',date('Y.m.d')); 	// Todays date, default for registration
-		$smarty->assign('name',$name);				// Username
+		$smarty->assign('name',$username);				// Username
 	}
 	$smarty->display($template);
 }

@@ -1,6 +1,6 @@
 ﻿{include file='header.tpl'}
 <div id="content">
-<form action="data.php" method="post">
+<form action="{$smarty.server.SCRIPT_NAME}" method="post">
 <h1>{$table}</h1>
 <p>
 <!-- displaydata.tpl-->
@@ -8,7 +8,7 @@
 {strip}
 	<input type="hidden" id="table" name="table" value="{$table}" />
 	<input type="hidden" id="username" name="username" value="{$name}" />
-	<label for="{$p[mysec].Field}">{$p[mysec].Field} :</label>
+	<label for="{$p[mysec].Field}">{$p[mysec].Field|ucfirst} :</label>
 	{if $p[mysec].Type eq 'int(11)'}
 		{assign var='class' value=" integer numeric"}
 	{else}
@@ -25,7 +25,7 @@
 	{else}
 		<input type="text" name="{$p[mysec].Field}" class="textfield{$class}" id="{$p[mysec].Field}" value="{$p[mysec].Value}" size="{$p[mysec].length}"/>
 		{if $p[mysec].main !=''}
-			<a href="data.php?table={$p[mysec].main}&id={$p[mysec].Value}">Main</a>
+			<a href="{$smarty.server.SCRIPT_NAME}?table={$p[mysec].main}&id={$p[mysec].Value}">Main</a>
 		{/if}	
 		<br />
 	{/if}
@@ -47,8 +47,10 @@
 	<p class="errormsg">{$error}</p>
 {/if}
 <hr/>
-|<a href="data.php">table list</a>
-|<a href="index.php">Main menu</a>
-|</div>
+<ul class="horizmenu">
+<li><a href="{$smarty.server.SCRIPT_NAME}">table list</a></li>
+<li><a href="index.php">Main menu</a></li>
+</ul>
+</div>
 </body>
 </html>

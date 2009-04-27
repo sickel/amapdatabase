@@ -1,6 +1,11 @@
 ﻿<?php
 
 function createid($name,$table){
+/* 
+Makes a text id based on name. 
+uppercase string, non 7-bit characters translated,
+spaces removed. A number from 0 and upwards inserted to make it unique
+*/
 	global $dbh;
 	$name=strtoupper($name);
 	$name=strtr($name,'ÆØÅÂÄÔÖ','EOAAAOO');
@@ -14,10 +19,7 @@ function createid($name,$table){
 		$id="$name$i";
 		$i++;
 		$sqlh->execute(array($id));
-		//print_r($sqlh->errorInfo());
 		$n=$sqlh->fetchAll();
-		//print("|${n[0][0]}|");
-		//print_r($n[0][0])
 		$exists=$n[0][0];
 	}
 	return($id);
