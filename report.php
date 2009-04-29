@@ -13,11 +13,11 @@ define('DEFFIELDSIZE',8);
 $sql='SELECT Table_name,table_comment FROM information_schema.`TABLES` T where table_schema=? and table_type="BASE TABLE" and ! (table_name like "%\_%")';
 $tableset=fetchset($sql,$database,PDO::FETCH_NUM);
 
-foreach($tableset as $t){
-	if(!(substr($t[1],0,2)=='__')){ // administrative tables are marked with __admin__
-		$tables[$t[0]]=$t[1]?$t[1]:$t[0]; // Makes an array table_name => table_comment if table_comment is defined, else table_name => table_name
-	}
-}
+$menu=array(
+	'source'=>'Sources'
+	,'measure'=>'Measurements'
+);
+	
 $smarty = new smarty_connect; // Sets up the standard connection to use smarty
 $template='listtables.tpl';
 if(!($_COOKIE['username'] && $_COOKIE['userid'])){ 
@@ -27,7 +27,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 }else{ // Start the real work
 	$name=$_COOKIE['username'];
 	$userid=$_COOKIE['userid'];
-	$table=$_REQUEST['table']; // table and id may either come from  get /when going to a new record / or post, when updating a record
+	$report=$_REQUEST['report']; // table and id may either come from  get /when going to a new record / or post, when updating a record
 	$id=$_REQUEST['id'];
 	try{
 		if(!$table){

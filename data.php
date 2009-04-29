@@ -6,13 +6,13 @@ require_once 'amaplibs.php';
 require('./smarty/Smarty_Connect.php');
 $setsize=$_GET['n']?$_GET['n']:30; // number of elements per page in list mode
 $setsize=bracket($setsize,10,501);
-$prefix='amap_';
+$prefix='';
 define('MAXFIELDSIZE',60); // Largest allowable size of a field
 define('DEFFIELDSIZE',8);  
 // Reads in tables
-$sql='SELECT Table_name,table_comment FROM information_schema.`TABLES` T where table_schema=? and table_type="BASE TABLE" and ! (table_name like "%\_%")';
+$sql='SELECT Table_name,table_comment FROM information_schema.`TABLES` T where table_schema=? and table_type="BASE TABLE" ';
+$sql.=$prefix?" and table_name like '${prefix}%'":'and ! (table_name like "%\_%")';
 $tableset=fetchset($sql,$database,PDO::FETCH_NUM);
-
 foreach($tableset as $t){
 	if(!(substr($t[1],0,2)=='__')){ // administrative tables are marked with __admin__
 		$t[1]=preg_replace('/; Inno.*/','',$t[1]);
@@ -40,10 +40,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		$smarty->assign('tablename',$tables[$table]);
 		$smarty->assign('table',$table);
 		$smarty->assign('tableid',$tables[$table].'id');
-		$tablefields=fetchset("show COLUMNS FROM $table",'');
+		$tablefields=fetchset("show COLUMNS FROM ${prefix}$table",'');
 		if($_POST['submitdata']=='Search'){
-			$searchsql="select id, name from $table where true ";
-			$nsql="select count(id) from $table where true ";
+			$searchsql="select id, name from $prefix$table where true ";
+			$nsql="select count(id) from $prefix$table where true ";
 			$searchfields=array();
 			$_POST['username']='';
 			$sqltail='';
@@ -62,7 +62,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		
 		if($_GET['mode']=='list'){
 		// TODO: Må kunne bla i resultater fra et søk. Detter over i hele tabellen nå.
-			$nsql=$nsql?$nsql:"select count(id) n from $table";
+			$nsql=$nsql?$nsql:"select count(id) n from ${prefix}$table";
 			$ntot=fetchset($nsql,$searchfields,PDO::FETCH_NUM);
 			//debug($ntot);
 			$pages=ceil($ntot[0]/$setsize); 
@@ -77,19 +77,18 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			if($last<$pages-1){$browsepages[]=$pages;}
 			$pagebrowser='';
 			foreach($browsepages as $page){
-				$pagebrowser.=$page-1==$activepage?"<span class=\"activepage\">[$page]</span>":sprintf('[<a href="data.php?mode=list&table=%s&offset=%s">%s</a>]',$table,($page-1)*$setsize,$page);
+				$pagebrowser.=$page-1==$activepage?"<span class=\"activepage\">[$page]</span>":sprintf('[<a href="'.$_SERVER['PHP_SELF'].'?mode=list&table=%s&offset=%s">%s</a>]',$table,($page-1)*$setsize,$page);
 			}
 			$smarty->assign('browse',$pagebrowser);
 			for($i=$activepage-2;$i<=$activepage+2;$i++);
 			$offset=$activepage*$setsize;
-			$sql=$searchsql?$searchsql:listsql($table,$offset,$setsize);
+			$sql=$searchsql?$searchsql:listsql($prefix.$table,$offset,$setsize);
 			//debug($sql);
 			$data=fetchset($sql,$searchfields,PDO::FETCH_ASSOC,false);
 			$template='listdata.tpl';
 			$smarty->assign('p',$data);
 			throw new Exception('Out');
 		}
-		//debug($tablefields);
 		$nfields=count($tablefields); // need to preset it, since we are manipulating the array inside the loop.Even though it should not matter, this will mess up the loop
 		for($i=0;$i<$nfields;$i++){
 			$len=DEFFIELDSIZE;
@@ -99,7 +98,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$len=min($len,MAXFIELDSIZE); 
 			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;}
 			$tablefields[$i]['length']=$len;
-			if(substr($tablefields[$i]['Field'],-2)=='id' and (strlen($tablefields[$i]['Field'])>2)){
+			if(substr($tablefields[$i]['Field'],-2)=='id' and $tablefields[$i]['Field']!='id'){
 				$tablefields[$i]['main']=substr($tablefields[$i]['Field'],0,-2);
 				$tablefields[$i]['Field']=$tablefields[$i]['main']; // Removes the id also from the field name
 			}
@@ -121,7 +120,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$fieldlist='';	
 			$update=strlen($id);
 			if(!$update ){ // AMAPdb   -> must also check if id is numeric..
-				if($_POST['name']){
+				if(strtolower(substr($tablefields[0]['Type'],0,4))=='char')
+				{
 					$id=createid($_POST['name'],$table);
 					$_POST['id']=$id;
 				}
@@ -147,8 +147,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			//debug($storedata);
 			//debug($sql);	
 			if($update){
-				if(tableexists("${table}_log",$database)){ // updates are to be logged, that is, the old version is stored with the current timestamp
-					$sql="insert into ${table}_log select null,${table}.*,null,'$username' from $table where $table.id=?";
+				if(tableexists("${prefix}${table}_log",$database)){ // updates are to be logged, that is, the old version is stored with the current timestamp
+					$sql="insert into ${prefix}${table}_log select null,t.*,null,'$username' from $prefix$table t where t.id=?";
 					$sqlh=$dbh->prepare($sql);
 					$sqlh->execute(array($id));
 					$error=$sqlh->errorInfo();
@@ -157,8 +157,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$storedata[]=$id;
 				
 			}
-			$sql=$update?"update $table set $fieldlist where id = ?":
-				"insert into $table ($fieldlist) values ($vallist)";
+			$sql=$update?"update $prefix$table set $fieldlist where id = ?":
+				"insert into $prefix$table ($fieldlist) values ($vallist)";
 			$inserth=$dbh->prepare($sql);
 			$inserth->execute($storedata);
 			$error=$inserth->errorInfo();
@@ -170,7 +170,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			}
 		}	
 		if($id){
-			$values=fetchset("select * from $table where id=?",$id);
+			$values=fetchset("select * from $prefix$table where id=?",$id);
 			//debug($values);
 			for($i=0;$i<$nfields;$i++){
 				//$tablefields[$i]['Value']=utf8_encode($values[$i]); 
@@ -190,10 +190,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		}
 		$recname=$recname?$recname:'1'; // record to look up. Set to 1 if no ID is set.
 		$sqls=array(
-				'<<-'=>"select min(id) from $table",
-				'<-'=>"select id from $table where $sortfield < ? order by $sortfield desc limit 1 ",
-				'->'=>"select id from $table where $sortfield > ? order by $sortfield asc limit 1 ",
-				'->>'=>"select max(id) from $table"
+				'<<-'=>"select min(id) from $prefix$table",
+				'<-'=>"select id from $prefix$table where $sortfield < ? order by $sortfield desc limit 1 ",
+				'->'=>"select id from $prefix$table where $sortfield > ? order by $sortfield asc limit 1 ",
+				'->>'=>"select max(id) from $prefix$table"
 				);
 		
 		$browse='<ul class="horizmenu">';
@@ -203,28 +203,34 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&id=${goto[0]}$subtab\">$key</a> </li>";
 		}
 		
-		$offset=fetchset("select count(id) from $table where $sortfield < ?",$recname);
-		$browse.="<li> <a href=\"data.php?table=$table&offset=$offset[0]&mode=list\">List</a> </li>";
-		$browse.="<li> <a href=\"data.php?table=$table&amp;id=0\">Add</a></li>";
-		$browse.="<li> <a href=\"data.php?table=$table&amp;mode=search\">Search</a> </li>";
+		$offset=fetchset("select count(id) from $prefix$table where $sortfield < ?",$recname);
+		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&offset=$offset[0]&mode=list\">List</a> </li>";
+		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&amp;id=0\">Add</a></li>";
+		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&amp;mode=search\">Search</a> </li>";
 		$browse.='</ul><p>';
 		$subtables=fetchset("SELECT table_name FROM information_schema.`COLUMNS` C where table_schema=? and column_name='${table}id' and table_name not like '%\_%' ",$database,PDO::FETCH_ASSOC,false);
 //debug($tables);
 		foreach($subtables as $tab){
 			$ta=$tab['table_name'];
-			$browse.=sprintf('%s |<a href="data.php?table=%s">browse</a>|<a href="data.php?table=%s&subtab=%s&id=%s">subtable</a>|<br />',$ta,$ta,$table,$ta,$id);
+			if((substr($ta,-2)!='_e') and (substr($ta,-4)!='_log')){ // remove "expanded view" - like table but showing names rather than Ids,. This is what is to be shown.
+				if(strpos($ta,$prefix)===0){$ta=substr($ta,strlen($prefix));}
+				if($tables[$ta]){
+					$browse.=sprintf('%s |<a href="data.php?table=%s">browse</a>|<a href="data.php?table=%s&amp;subtab=%s&amp;id=%s">subtable</a>|<br />',$tables[$ta],$ta,$table,$ta,$id);
+				}
+			}
 		}
 		$browse.='</p>';
 		$smarty->assign('browse',$browse);		
 		$smarty->assign('p',$tablefields);
 		$template='displaydata.tpl';
 		if($_GET['subtab']){
-			$subtable="${_GET['subtab']}_e"; // if a $subtable_e view exists, then we prefer to use that, if not we'll use the 'raw' table
-			//debug($subtable);
-			if(tableexists($subtable,$database)){
-				$sql="select s.* from $subtable s,${_GET['subtab']} m where m.${table}id=? and m.id=s.id";
+			$subtable=$prefix.$_GET['subtab'];
+			$subtable_e="${subtable}_e"; // if a $subtable_e view exists, then we prefer to use that, if not we'll use the 'raw' table
+			//debug($subtable_e);
+			if(tableexists($subtable_e,$database)){
+				$sql="select s.* from ${subtable_e} s,${subtable} m where m.${table}id=? and m.id=s.id";
 			}else{
-				$sql="select s.* from ${_GET['subtab']} s where ${table}id=?";
+				$sql="select s.* from ${subtable} s where ${table}id=?";
 			}
 			//debug($sql);
 			$sqlh=$dbh->prepare($sql);

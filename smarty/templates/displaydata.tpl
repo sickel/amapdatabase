@@ -1,7 +1,7 @@
 ﻿{include file='header.tpl'}
 <div id="content">
 <form action="{$smarty.server.SCRIPT_NAME}" method="post">
-<h1>{$table}</h1>
+<h1>{$tablename}</h1>
 <p>
 <!-- displaydata.tpl-->
 {section name=mysec loop=$p}
@@ -25,7 +25,7 @@
 	{else}
 		<input type="text" name="{$p[mysec].Field}" class="textfield{$class}" id="{$p[mysec].Field}" value="{$p[mysec].Value}" size="{$p[mysec].length}"/>
 		{if $p[mysec].main !=''}
-			<a href="{$smarty.server.SCRIPT_NAME}?table={$p[mysec].main}&id={$p[mysec].Value}">Main</a>
+			<a href="{$smarty.server.SCRIPT_NAME}?table={$p[mysec].main}&id={$p[mysec].Value}">=></a>
 		{/if}	
 		<br />
 	{/if}
