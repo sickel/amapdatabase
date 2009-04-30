@@ -19,23 +19,29 @@ $menu=array(
 );
 	
 $smarty = new smarty_connect; // Sets up the standard connection to use smarty
-$template='listtables.tpl';
+$template='report00.tpl';
 if(!($_COOKIE['username'] && $_COOKIE['userid'])){ 
 	// Should have been logged on here but is not logged in, so we'll try (again)
 	$smarty->assign('logonerror',$logonerror);
 	$smarty->display('login.tpl');
 }else{ // Start the real work
-	debug($_GET);
+	//debug($_GET);
 	try{
-		$sql="select * from content_rep ";
-		for($i=0;$i<count($_GET['para']);$i++){
-			$sql.=$i?' and ':' where ';
-			$sql.=$_GET['para'][$i]."=? ";
-			$paras[]=$_GET['val'][$i];
+		$sql=createsql("select * from content_rep ",$_GET['para'],'content_rep',$database);
+		$sql.=' order by year';
+		$dataset=fetchset($sql,$_GET['val'],PDO::FETCH_ASSOC);
+		//debug($dataset);
+		// ='graph'){}
+		$smarty->assign('mode',$_GET['mode']);
+		switch($_GET['mode']){
+		case 'download':
+		case 'graph':
+			$smarty->assign('error',$_GET['mode'].' - to be implemented');
+			break;
+		default:
+			$smarty->assign('table','content');
+			$smarty->assign('p',$dataset);
 		}
-		debug($sql);
-		debug($paras);
-	
 	}
 
 

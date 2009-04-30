@@ -6,3 +6,6 @@
 </head>
 
 <body>
+{if $error}
+	<p class="errormsg">{$error}</p>
+{/if}

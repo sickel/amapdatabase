@@ -43,9 +43,6 @@
 {if $subtable}
 	{include file='subtable.tpl'}
 {/if}	
-{if $error}
-	<p class="errormsg">{$error}</p>
-{/if}
 <hr/>
 <ul class="horizmenu">
 <li><a href="{$smarty.server.SCRIPT_NAME}">table list</a></li>
