@@ -2,7 +2,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>{$app_name}</title>
-<link rel="stylesheet" type="text/css" media="screen,projection" href="/etc/amap.css" charset="utf-8" />
+<link rel="stylesheet" type="text/css" media="screen,projection" href="amap.css" charset="utf-8" />
 </head>
 
 <body>

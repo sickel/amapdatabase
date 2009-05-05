@@ -14,7 +14,7 @@ download <input type="radio" name="mode" value="download" /> |
 report <input type="radio" name="mode" value="normal" /> |
 graph <input type="radio" name="mode" value="graph" /> |
 <br />
-<input type="submit" name="report" value="Report" />
+<input type="submit" name="report" value="Report" /> <input type="reset" />
 </p></form>
 </body>
 </html>

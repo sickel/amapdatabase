@@ -1,0 +1,146 @@
+.box{
+	margin: 1em 0 0 1em;
+	border: 1px solid;
+	padding: 1em 1em 1em 1em;
+	/*background: #1ABAEE; */
+}
+
+.topbottom
+{
+	margin: 1em 0em 1em 0em;
+	border-top: 1px solid;
+	padding: 1em 0em 1em 0em;
+}
+
+label {
+  vertical-align: top;
+  width: 10em;
+  float:left;
+  text-align: right;
+  margin: 0 1em 0.1em 0;
+  clear: both;
+}
+
+}
+
+input.contact{
+}
+
+h2 { color: #003399;
+font-family: sans-serif;}
+
+h3 { color: #003399;
+font-family: sans-serif;}
+
+.largetext{ font-size: 150%;
+}
+
+body {
+  margin: 2em 0 0 2em;
+  background: white;
+  color: #333;
+  line-height: 1.1;
+  text-align: justify;
+  font-family: verdana, "Gill Sans MT", "Gill Sans", GillSans, Arial, Helvetica, sans-serif;
+  text-align:center;
+ }
+ 
+ .activepage{
+ color: white;
+ background:black;
+ }
+ 
+#content {
+	width:600px;
+	margin:0px auto;
+	text-align:left;
+	padding:15px;
+	background-color:#eee;
+	} 
+  
+.li_org {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+  color: #0099cc;
+ }
+ 
+ .topiclist{
+   margin-left: 0;
+   padding-left: 0;
+}
+ .topiclist > li{color:#006699;
+   list-style: none;
+  
+ }
+ 
+ .topiclist li * {color : black;}
+ 
+ #menu {
+    text-align: left;
+	position:absolute;
+	top:50px;
+	right:20px;
+	padding:10px;
+	background-color:#eee;
+	line-height:17px;
+	width:170px;
+	
+}
+	
+/* Again, "be nice to Opera 5". */
+body>#menu {width:170px;
+position:fixed;}
+
+#internallinks{
+	font-size: 90%;
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+#internallinks li{
+	padding-top: 0.5em;
+}
+
+.trap{
+	display: none;
+}
+
+tr.unrated{
+	background: white;
+}
+tr.rated{
+	background: #aaa;
+}
+
+tr.even{background: white;}
+tr.odd{background: #ddd;}
+
+
+ul.horizmenu{
+	margin-left: 0;
+	padding-left: 0;
+	white-space: nowrap;
+}
+
+.horizmenu li{
+	display: inline;
+	list-style-type: none;
+}
+
+.horizmenu a {
+	padding: 0px 10px;
+}
+
+.horizmenu a:link, .horizmenu a:visited{
+	color: #fff;
+	background-color: #aaa;
+	text-decoration: none;
+}
+
+.horizmenu a:hover{
+	color: #fff;
+	background-color: #999;
+	text-decoration: none;
+}
