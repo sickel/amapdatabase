@@ -98,9 +98,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$len=min($len,MAXFIELDSIZE); 
 			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;}
 			$tablefields[$i]['length']=$len;
+			$tablefields[$i]['Label']=$tablefields[$i]['Field']; // Removes the id also from the field name
 			if(substr($tablefields[$i]['Field'],-2)=='id' and $tablefields[$i]['Field']!='id'){
 				$tablefields[$i]['main']=substr($tablefields[$i]['Field'],0,-2);
-				$tablefields[$i]['Field']=$tablefields[$i]['main']; // Removes the id also from the field name
+				$tablefields[$i]['Label']=$tablefields[$i]['main']; // Removes the id also from the field name
 			}
 			//debug("val_".$tablefields[$i]['Field']);
 			//debug($_GET["val_".$tablefields[$i]['Field'].'id']);

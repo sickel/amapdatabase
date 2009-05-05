@@ -8,7 +8,7 @@
 {strip}
 	<input type="hidden" id="table" name="table" value="{$table}" />
 	<input type="hidden" id="username" name="username" value="{$name}" />
-	<label for="{$p[mysec].Field}">{$p[mysec].Field|ucfirst} :</label>
+	<label for="{$p[mysec].Field}">{$p[mysec].Label|ucfirst} :</label>
 	{if $p[mysec].Type eq 'int(11)'}
 		{assign var='class' value=" integer numeric"}
 	{else}
