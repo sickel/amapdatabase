@@ -135,7 +135,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		}
 	}
 	//debug($total);
-	$menu=array('data.php'=>'Data maintenance');
+	$menu=array('data.php'=>'Data maintenance'
+	,'report_content.php'=>'Sources reporting');
 	
 	$smarty->assign('m',$menu); 					// All selections
 	$smarty->assign('userid',$userid);  		// The userid, to be put away in a hidden field 

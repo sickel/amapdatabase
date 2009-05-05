@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">	
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
 require_once 'amaplibs.php';
@@ -25,11 +25,29 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 	$smarty->assign('logonerror',$logonerror);
 	$smarty->display('login.tpl');
 }else{ // Start the real work
-	//debug($_GET);
 	try{
-		$sql=createsql("select * from content_rep ",$_GET['para'],'content_rep',$database);
+		if(!($_GET)){
+			$template='selectitems00.tpl';
+			$nucs=fetchset('select distinct n.id,n.name from nuclide n, content c where nuclideid=n.id order by name','',PDO::FETCH_ASSOC,0,1);
+			$srcs=fetchset('select distinct s.id,s.name from source s, content c where sourceid=s.id order by name','',PDO::FETCH_ASSOC,0,1);
+			//debug($nucs);
+			//debug($srcs);
+			$smarty->assign('nucs',$nucs);
+			$smarty->assign('srcs',$srcs);		
+			throw new Exception('Out');
+		}
+		$para=array();
+		$val=array();
+		foreach($_GET as $k=>$v){ 
+			if(is_array($v)){
+				$para=array_merge($para,array_fill(0,count($v),$k));
+				$val=array_merge($val,$v);
+			}
+		}
+			
+		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
-		$dataset=fetchset($sql,$_GET['val'],PDO::FETCH_ASSOC);
+		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC);
 		//debug($dataset);
 		// ='graph'){}
 		$smarty->assign('mode',$_GET['mode']);
@@ -38,14 +56,36 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		case 'graph':
 			$smarty->assign('error',$_GET['mode'].' - to be implemented');
 			break;
+		case 'crosstab':
+			for($i=0;$i<count($para);$i++){
+				$paraset[$para[$i]][]=$val[$i]; 
+			}
+			foreach($paraset as $key=>$val){
+				if(count($val)>1){
+					$group=$key; 
+				}
+			}
+			if($group){ // if no groupling, falls through to the default
+				foreach($dataset as $data){
+					$xtab[$data['year']][$data[$group]]=$data['amount']>0?$data['amount']:''; // Numbers less than 0 indicates missing value
+				}
+				$dataset=array();
+				foreach($xtab as $year=>$vals){
+					$row=array('year'=>$year);
+					foreach($paraset[$group] as $head){
+						$row[$head]=$xtab[$year][$head];
+					}
+					$dataset[]=$row;
+				}
+				$row=array('','year');
+				$row=array_merge($row,$paraset[$group]);
+				$smarty->assign('tablehead',$row);
+			}
 		default:
-			$smarty->assign('table','content');
+			$smarty->assign('table','Content');
 			$smarty->assign('p',$dataset);
 		}
 	}
-
-
-
 	catch(Exception $e){
 		$errormsg=$e->getMessage();
 		$smarty->assign('error',$errormsg=='Out'?'':$errormsg);

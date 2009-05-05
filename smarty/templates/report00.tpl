@@ -1,8 +1,15 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
-<p>
 <!-- report00.tpl-->
 <h2>{$table}</h2>
+<p><a href="{$smarty.server.SCRIPT_NAME}">New report</a></p>
 <table border="single">
+<tr>
+{section name=mysec loop=$tablehead}
+{strip}
+	<th>{$tablehead[mysec]}</th>
+{/strip}
+{/section}
+</tr>
 {section name=mysec loop=$p}
 {strip}
 	<tr><td><a href="data.php?table={$table}&amp;id={$p[mysec].id}"> {$p[mysec].id}</a></td>
@@ -15,6 +22,5 @@
 {/strip}
 {/section}
 </table>
-<a href="{$smarty.server.SCRIPT_NAME}?table={$ptable}&amp;id=0&amp;val_{$table}id={$p[0].Value}">Add</a>
-</p>
-
+</body>
+</html>
