@@ -1,12 +1,18 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
 <!-- report00.tpl-->
-<p><a href="{$smarty.server.SCRIPT_NAME}">New report</a> <a href="index.php">Main menu</a></p>
+<ul class="horizmenu">
+<li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
+<li><a href="index.php">Main menu</a></li>
+</ul>
+
 <h2>{$table}</h2>
 <form action="" method="get">
-<p>Nuclides : 
+<p><span class="label">Nuclides : </span>
 {html_options name=nuclideid[] id="nuclideid" options=$nucs multiple="multiple"}
-Sources :
-{html_options name=sourceid[] id="sourceid" options=$srcs multiple="multiple"}
+<span class="label">Sources :</span>
+{html_options name=sourceid[] id="sourceid" options=$srcs multiple="multiple"}<br />
+<span class="label">Unit :</span>
+{html_options name="unitid" id="unitid" options=$units}
 <br />
 Mode:
 Crosstab <input type="radio" name="mode" value="crosstab" /> |

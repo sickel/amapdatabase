@@ -13,10 +13,13 @@
 {/section}
 </p>
 <p>{$browse}</p>
-<p>| <a href="data.php?table={$table}&id=0">Add</a> 
-| <a href="data.php?table={$table}&mode=search">Search</a> |</p><hr />
-| <a href="data.php">table list</a>
-| <a href="index.php">Main menu</a>
-|</div>
+<ul class="horizmenu"> 
+<li><a href="data.php?table={$table}&id=0">Add</a> </li>
+<li><a href="data.php?table={$table}&mode=search">Search</a></li>
+</ul><hr />
+<ul class="horizmenu">
+<li><a href="data.php">Table list</a></li>
+<li><a href="index.php">Main menu</a></li>
+</ul></div>
 </body>
 </html>

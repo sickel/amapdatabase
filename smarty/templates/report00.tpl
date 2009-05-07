@@ -1,7 +1,9 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
 <!-- report00.tpl-->
 <h2>{$table}</h2>
-<p><a href="{$smarty.server.SCRIPT_NAME}">New report</a></p>
+<ul class="horizmenu">
+<li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
+</ul>
 <table border="single">
 <tr>
 {section name=mysec loop=$tablehead}

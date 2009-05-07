@@ -94,7 +94,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$len=DEFFIELDSIZE;
 			if(strstr($tablefields[$i]['Type'],'char')){
 				$len=trim($tablefields[$i]['Type'],'varch(');
-				$len=rtrim($len,')');
+				$len=rtrim($len,')')+1;
 				$len=min($len,MAXFIELDSIZE); 
 			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;}
 			$tablefields[$i]['length']=$len;
