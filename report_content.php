@@ -30,10 +30,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$template='selectitems00.tpl';
 			$nucs=fetchset('select distinct n.id,n.name from nuclide n, content c where nuclideid=n.id order by name','',PDO::FETCH_ASSOC,0,1);
 			$srcs=fetchset('select distinct s.id,s.name from source s, content c where sourceid=s.id order by name','',PDO::FETCH_ASSOC,0,1);
-			//debug($nucs);
-			//debug($srcs);
+			$units=fetchset('select distinct u.unit as id,u.unit as name from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0,1);
 			$smarty->assign('nucs',$nucs);
 			$smarty->assign('srcs',$srcs);		
+			$smarty->assign('units',$units);
 			throw new Exception('Out');
 		}
 		$para=array();
@@ -44,12 +44,12 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$val=array_merge($val,$v);
 			}
 		}
-			
+		$units=fetchset('select u.unit,u.relunit,u.factor from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0);
+		debug($units);
 		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
-		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC);
-		//debug($dataset);
-		// ='graph'){}
+		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC,0);
+		
 		$smarty->assign('mode',$_GET['mode']);
 		switch($_GET['mode']){
 		case 'download':
