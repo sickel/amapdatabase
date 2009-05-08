@@ -1,6 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <?php
+
+/*
+$Id$
+*/
+
 require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
 require_once 'amaplibs.php';
 require('./smarty/Smarty_Connect.php');
@@ -31,6 +36,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$nucs=fetchset('select distinct n.id,n.name from nuclide n, content c where nuclideid=n.id order by name','',PDO::FETCH_ASSOC,0,1);
 			$srcs=fetchset('select distinct s.id,s.name from source s, content c where sourceid=s.id order by name','',PDO::FETCH_ASSOC,0,1);
 			$units=fetchset('select distinct u.unit as id,u.unit as name from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0,1);
+			$units['0']='&nbsp;';
+			//debug($units);
 			$smarty->assign('nucs',$nucs);
 			$smarty->assign('srcs',$srcs);		
 			$smarty->assign('units',$units);
@@ -44,8 +51,18 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$val=array_merge($val,$v);
 			}
 		}
-		$units=fetchset('select u.unit,u.relunit,u.factor from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0);
+		$units=fetchset('select distinct u.unit,u.relunit,u.factor from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0);
+		foreach($units as $id=>$u){
+			$units[$u['unit']][$u['relunit']]=$u['factor'];
+			$units[$u['relunit']][$u['unit']]=1/$u['factor'];
+			$units[$u['unit']][$u['unit']]=1;
+			$units[$u['relunit']][$u['relunit']]=1;
+			
+			
+			unset($units[$id]);
+		}
 		debug($units);
+		
 		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
 		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC,0);
