@@ -79,6 +79,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$smarty->assign('error',$_GET['mode'].' - to be implemented');
 			break;
 		case 'crosstab':
+			if($_GET['unitid'] and $units[$_GET['unitid']][$_GET['unitid']]){
 			for($i=0;$i<count($para);$i++){
 				$paraset[$para[$i]][]=$val[$i]; 
 			}
@@ -102,6 +103,9 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$row=array('','year');
 				$row=array_merge($row,$paraset[$group]);
 				$smarty->assign('tablehead',$row);
+			}
+			}else{
+				throw new Exception('Cannot do cross-tabulation without a defined unit');
 			}
 		default:
 			$smarty->assign('table','Content');
