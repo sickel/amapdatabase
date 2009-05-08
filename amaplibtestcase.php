@@ -1,5 +1,8 @@
 <?php
+/*
+$Id$
 
+*/
 require_once 'amaplibs.php';
 require_once 'PHPUnit.php';
 

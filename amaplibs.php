@@ -1,5 +1,8 @@
 ﻿<?php
+/*
+$Id$
 
+*/
 function createid($name,$table){
 /* 
 Makes a text id based on name. 
