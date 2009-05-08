@@ -61,12 +61,17 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			
 			unset($units[$id]);
 		}
-		debug($units);
+		//debug($units);
 		
 		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
 		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC,0);
-		
+		if($_GET['unitid'] and $units[$_GET['unitid']][$_GET['unitid']]){
+			foreach($dataset as $i=>$row){
+				$dataset[$i]['unit']=$_GET['unitid'];
+				$dataset[$i]['amount']=$row['amount']/$units[$row['unit']][$_GET['unitid']];
+			}
+		}
 		$smarty->assign('mode',$_GET['mode']);
 		switch($_GET['mode']){
 		case 'download':
