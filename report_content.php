@@ -66,29 +66,36 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
 		$dataset=fetchset($sql,$val,PDO::FETCH_ASSOC,0);
+		$unit=False;
 		if($_GET['unitid'] and $units[$_GET['unitid']][$_GET['unitid']]){
+			$unit=$_GET['unitid'];
 			foreach($dataset as $i=>$row){
-				$dataset[$i]['unit']=$_GET['unitid'];
-				$dataset[$i]['amount']=$row['amount']/$units[$row['unit']][$_GET['unitid']];
+				$dataset[$i]['unit']=$unit;
+				$dataset[$i]['amount']=$row['amount']/$units[$row['unit']][$unit];
 			}
 		}
 		$smarty->assign('mode',$_GET['mode']);
 		switch($_GET['mode']){
 		case 'download':
-		case 'graph':
-			$smarty->assign('error',$_GET['mode'].' - to be implemented');
+			throw new Exception($_GET['mode'].' - to be implemented');
 			break;
+		case 'graph':
 		case 'crosstab':
-			if($_GET['unitid'] and $units[$_GET['unitid']][$_GET['unitid']]){
+			if($unit){
 			for($i=0;$i<count($para);$i++){
 				$paraset[$para[$i]][]=$val[$i]; 
 			}
 			foreach($paraset as $key=>$val){
 				if(count($val)>1){
-					$group=$key; 
+					$group=$key;
+					$ngroup++;
+				}elseif(is_array($val)){
+					$headgroup=$val[0];
 				}
 			}
+			if($ngroup>1){throw new Exception('Can only crosstab on one parameter');}
 			if($group){ // if no groupling, falls through to the default
+				$crosstabbed=true;
 				foreach($dataset as $data){
 					$xtab[$data['year']][$data[$group]]=$data['amount']>0?$data['amount']:''; // Numbers less than 0 indicates missing value
 				}
@@ -107,10 +114,16 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			}else{
 				throw new Exception('Cannot do cross-tabulation without a defined unit');
 			}
+			if($_GET['mode']=='graph'){
+				debug(count($dataset));
+				debug($dataset);
+				throw new Exception($_GET['mode'].' -to be implemented');
+			}
 		default:
-			$smarty->assign('table','Content');
 			$smarty->assign('p',$dataset);
 		}
+		$smarty->assign('table',"Content $headgroup ($unit)");
+			
 	}
 	catch(Exception $e){
 		$errormsg=$e->getMessage();
