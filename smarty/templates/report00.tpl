@@ -1,6 +1,6 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
 <!-- report00.tpl-->
-<h2>{$table}</h2>
+<h2>{$header}</h2>
 <ul class="horizmenu">
 <li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
 </ul>

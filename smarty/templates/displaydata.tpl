@@ -4,10 +4,10 @@
 <h1>{$tablename}</h1>
 <p>
 <!-- displaydata.tpl-->
-{section name=mysec loop=$p}
-{strip}
 	<input type="hidden" id="table" name="table" value="{$table}" />
 	<input type="hidden" id="username" name="username" value="{$name}" />
+{section name=mysec loop=$p}
+{strip}
 	<label for="{$p[mysec].Field}">{$p[mysec].Label|ucfirst} :</label>
 	{if $p[mysec].Type eq 'int(11)'}
 		{assign var='class' value=" integer numeric"}
@@ -36,9 +36,34 @@
 {else}
 	{assign var='submittext' value="Store"}
 {/if}
+{if $last}
+	<p>Last update {$last}</p>
+{/if}
 	<input type="submit" name="submitdata" value="{$submittext}" />
 </p>
 </form>
+{if $b}
+<ul class="horizmenu">
+	<li> <a href="/AMAP/datasenter/data.php?table={$b.first}"><<-</a> </li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$b.prev}"><-</a> </li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$b.next}">-></a> </li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$b.last}">->></a> </li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$b.list}&mode=list">List</a> </li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$table}&amp;id=0">Add</a></li>
+	<li> <a href="/AMAP/datasenter/data.php?table={$table}&amp;mode=search">Search</a> </li>
+</ul>
+{/if}
+<ul class="nodot">
+{foreach from=$subtablelist key=label item=subtable}
+<li>
+	| <a href="data.php?table={$subtable}">browse</a>
+	| <a href="data.php?table={$table}&amp;subtab={$subtable}&amp;id={$id}">subtable</a> 
+	| {$label} 
+</li>
+{/foreach}
+</ul>
+
+
 <p>{$browse}</p>
 {if $subtable}
 	{include file='subtable.tpl'}

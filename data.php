@@ -108,11 +108,9 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$tablefields[$i]['main']=substr($tablefields[$i]['Field'],0,-2);
 				$tablefields[$i]['Label']=$tablefields[$i]['main']; // Removes the id also from the field name
 			}
-			//debug("val_".$tablefields[$i]['Field']);
-			//debug($_GET["val_".$tablefields[$i]['Field'].'id']);
-			if($_GET["val_".$tablefields[$i]['Field'].'id']){
-			//	huh();
-				$tablefields[$i]['Value']=$_GET["val_".$tablefields[$i]['Field'].'id'];
+			// Presets a value for an added record this value will be overridden if an existing record is read in
+			if($_GET["val_".$tablefields[$i]['Field']]) { 
+				$tablefields[$i]['Value']=$_GET["val_".$tablefields[$i]['Field']];
 			}
 		}
 		//debug($tablefields);
@@ -175,6 +173,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$id=$last[0];
 			}
 		}	
+/* 
+	Reads in a record for display
+*/
+
 		if($id){
 			$values=fetchset("select * from $prefix$table where id=?",$id);
 			//debug($values);
@@ -195,25 +197,24 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$recname=$id;
 		}
 		$recname=$recname?$recname:'1'; // record to look up. Set to 1 if no ID is set.
+		
 		$sqls=array(
-				'<<-'=>"select min(id) from $prefix$table",
-				'<-'=>"select id from $prefix$table where $sortfield < ? order by $sortfield desc limit 1 ",
-				'->'=>"select id from $prefix$table where $sortfield > ? order by $sortfield asc limit 1 ",
-				'->>'=>"select max(id) from $prefix$table"
+				'first'=>"select min(id) from $prefix$table",
+				'prev'=>"select id from $prefix$table where $sortfield < ? order by $sortfield desc limit 1 ",
+				'next'=>"select id from $prefix$table where $sortfield > ? order by $sortfield asc limit 1 ",
+				'last'=>"select max(id) from $prefix$table"
 				);
 		
-		$browse='<ul class="horizmenu">';
 		foreach($sqls as $key=>$sql){
 			$goto=fetchset($sql,$recname);
 			$subtab=$_GET['subtab']?"&subtab=${_GET['subtab']}":'';
-			$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&id=${goto[0]}$subtab\">$key</a> </li>";
+			$b[$key]="$table&id=${goto[0]}$subtab";
 		}
-		
 		$offset=fetchset("select count(id) from $prefix$table where $sortfield < ?",$recname);
-		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&offset=$offset[0]&mode=list\">List</a> </li>";
-		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&amp;id=0\">Add</a></li>";
-		$browse.="<li> <a href=\"${_SERVER['PHP_SELF']}?table=$table&amp;mode=search\">Search</a> </li>";
-		$browse.='</ul><p>';
+		$b['list']="$table&offset=$offset[0]";
+		$b['add']=$table;
+		$smarty->assign('b',$b);
+		
 		$subtables=fetchset("SELECT table_name FROM information_schema.`COLUMNS` C where table_schema=? and column_name='${table}id' and table_name not like '%\_%' ",$database,PDO::FETCH_ASSOC,false);
 //debug($tables);
 		foreach($subtables as $tab){
@@ -221,13 +222,22 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			if((substr($ta,-2)!='_e') and (substr($ta,-4)!='_log')){ // remove "expanded view" - like table but showing names rather than Ids,. This is what is to be shown.
 				if(strpos($ta,$prefix)===0){$ta=substr($ta,strlen($prefix));}
 				if($tables[$ta]){
+					$subtablelist[$tables[$ta]]=$ta;
 					$browse.=sprintf('%s |<a href="data.php?table=%s">browse</a>|<a href="data.php?table=%s&amp;subtab=%s&amp;id=%s">subtable</a>|<br />',$tables[$ta],$ta,$table,$ta,$id);
 				}
+				
 			}
 		}
 		$browse.='</p>';
-		$smarty->assign('browse',$browse);		
+		$smarty->assign('subtablelist',$subtablelist);
+		$smarty->assign('id',$id);
+		//$smarty->assign('browse',$browse);		
 		$smarty->assign('p',$tablefields);
+		if(tableexists("${prefix}${table}_log",$database)){ // updates are to be logged, that is, the old version is stored with the current timestamp
+			$sql="select max(logtime) from ${prefix}${table}_log where id=?";
+			$last=fetchset($sql,$id,PDO::FETCH_NUM);
+			$smarty->assign('last',$last[0]);
+		}
 		$template='displaydata.tpl';
 		if($_GET['subtab']){
 			$subtable=$prefix.$_GET['subtab'];

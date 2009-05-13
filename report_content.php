@@ -81,7 +81,9 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			break;
 		case 'graph':
 		case 'crosstab':
-			if($unit){
+			if(!$unit){
+				throw new Exception('Cannot do cross-tabulation without a defined unit');
+			}
 			for($i=0;$i<count($para);$i++){
 				$paraset[$para[$i]][]=$val[$i]; 
 			}
@@ -111,9 +113,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$row=array_merge($row,$paraset[$group]);
 				$smarty->assign('tablehead',$row);
 			}
-			}else{
-				throw new Exception('Cannot do cross-tabulation without a defined unit');
-			}
+			
 			if($_GET['mode']=='graph'){
 				debug(count($dataset));
 				debug($dataset);
@@ -122,7 +122,8 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		default:
 			$smarty->assign('p',$dataset);
 		}
-		$smarty->assign('table',"Content $headgroup ($unit)");
+		$smarty->assign('table',"content");
+		$smarty->assign('header',"Content $headgroup ($unit)");
 			
 	}
 	catch(Exception $e){
