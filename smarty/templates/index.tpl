@@ -1,6 +1,6 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
 <div id="content">
-<ul class="vertmenu menu">
+<ul class="nodot">
 {foreach from=$m key=k item=v}
 <li>
 <a href="{$k}">{$v}</a>

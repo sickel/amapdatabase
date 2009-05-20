@@ -54,21 +54,19 @@
 </ul>
 {/if}
 <ul class="nodot">
-{foreach from=$subtablelist key=label item=subtable}
+{foreach from=$subtablelist key=label item=subtab}
 <li>
-	| <a href="data.php?table={$subtable}">browse</a>
-	| <a href="data.php?table={$table}&amp;subtab={$subtable}&amp;id={$id}">subtable</a> 
-	| {$label} 
+<label>{$label|ucfirst}</label><ul class="horizmenu">
+	<li><a href="data.php?table={$subtab}">browse</a></li>
+	<li><a href="data.php?table={$table}&amp;subtab={$subtab}&amp;id={$id}">subtable</a></li>
+	</ul>
 </li>
 {/foreach}
 </ul>
-
-
-<p>{$browse}</p>
 {if $subtable}
 	{include file='subtable.tpl'}
 {/if}	
-<hr/>
+<br /><hr/>
 <ul class="horizmenu">
 <li><a href="{$smarty.server.SCRIPT_NAME}">table list</a></li>
 <li><a href="index.php">Main menu</a></li>

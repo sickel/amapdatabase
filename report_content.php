@@ -6,6 +6,13 @@
 $Id$
 */
 
+function filter_crosstab($value){
+// To be used to filter data  when crosstabbing
+	return $value<0;
+}
+
+
+
 require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
 require_once 'amaplibs.php';
 require('./smarty/Smarty_Connect.php');
@@ -43,6 +50,15 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$smarty->assign('units',$units);
 			throw new Exception('Out');
 		}
+		$units=fetchset('select distinct u.unit,u.relunit,u.factor from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0);
+		foreach($units as $id=>$u){
+			// To make sure that nothing is forgotten, use the factors both ways
+			$units[$u['unit']][$u['relunit']]=$u['factor'];
+			$units[$u['relunit']][$u['unit']]=1/$u['factor'];
+			$units[$u['unit']][$u['unit']]=1;
+			$units[$u['relunit']][$u['relunit']]=1;
+			unset($units[$id]);
+		}
 		$para=array();
 		$val=array();
 		foreach($_GET as $k=>$v){ 
@@ -51,17 +67,6 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$val=array_merge($val,$v);
 			}
 		}
-		$units=fetchset('select distinct u.unit,u.relunit,u.factor from unit u, content c where c.unit=u.relunit order by name','',PDO::FETCH_ASSOC,0);
-		foreach($units as $id=>$u){
-			$units[$u['unit']][$u['relunit']]=$u['factor'];
-			$units[$u['relunit']][$u['unit']]=1/$u['factor'];
-			$units[$u['unit']][$u['unit']]=1;
-			$units[$u['relunit']][$u['relunit']]=1;
-			
-			
-			unset($units[$id]);
-		}
-		//debug($units);
 		
 		$sql=createsql("select * from content_rep ",$para,'content_rep',$database);
 		$sql.=' order by year';
@@ -80,6 +85,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			throw new Exception($_GET['mode'].' - to be implemented');
 			break;
 		case 'graph':
+		
 		case 'crosstab':
 			if(!$unit){
 				throw new Exception('Cannot do cross-tabulation without a defined unit');
@@ -98,17 +104,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			if($ngroup>1){throw new Exception('Can only crosstab on one parameter');}
 			if($group){ // if no groupling, falls through to the default
 				$crosstabbed=true;
-				foreach($dataset as $data){
-					$xtab[$data['year']][$data[$group]]=$data['amount']>0?$data['amount']:''; // Numbers less than 0 indicates missing value
-				}
-				$dataset=array();
-				foreach($xtab as $year=>$vals){
-					$row=array('year'=>$year);
-					foreach($paraset[$group] as $head){
-						$row[$head]=$xtab[$year][$head];
-					}
-					$dataset[]=$row;
-				}
+				$dataset=normalize_xtab(xtab($dataset,'year',$group,'amount','filter_crosstab'),'year',$paraset[$group]); 
 				$row=array('','year');
 				$row=array_merge($row,$paraset[$group]);
 				$smarty->assign('tablehead',$row);

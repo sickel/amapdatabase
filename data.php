@@ -101,7 +101,9 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				$len=trim($tablefields[$i]['Type'],'varch(');
 				$len=rtrim($len,')')+1;
 				$len=min($len,MAXFIELDSIZE); 
-			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;}
+			}elseif($tablefields[$i]['Type']=='timestamp'){$len=17;
+			}elseif($tablefields[$i]['Type']=='datetime'){$len=17;}
+			
 			$tablefields[$i]['length']=$len;
 			$tablefields[$i]['Label']=$tablefields[$i]['Field']; // Removes the id also from the field name
 			if(substr($tablefields[$i]['Field'],-2)=='id' and $tablefields[$i]['Field']!='id'){
@@ -223,15 +225,12 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 				if(strpos($ta,$prefix)===0){$ta=substr($ta,strlen($prefix));}
 				if($tables[$ta]){
 					$subtablelist[$tables[$ta]]=$ta;
-					$browse.=sprintf('%s |<a href="data.php?table=%s">browse</a>|<a href="data.php?table=%s&amp;subtab=%s&amp;id=%s">subtable</a>|<br />',$tables[$ta],$ta,$table,$ta,$id);
 				}
 				
 			}
 		}
-		$browse.='</p>';
 		$smarty->assign('subtablelist',$subtablelist);
 		$smarty->assign('id',$id);
-		//$smarty->assign('browse',$browse);		
 		$smarty->assign('p',$tablefields);
 		if(tableexists("${prefix}${table}_log",$database)){ // updates are to be logged, that is, the old version is stored with the current timestamp
 			$sql="select max(logtime) from ${prefix}${table}_log where id=?";
