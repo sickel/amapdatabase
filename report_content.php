@@ -85,7 +85,9 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			throw new Exception($_GET['mode'].' - to be implemented');
 			break;
 		case 'graph':
-		
+			$template='contentgraph.tpl';
+			$smarty->assign('get',$_SERVER['QUERY_STRING']);
+			$break;
 		case 'crosstab':
 			if(!$unit){
 				throw new Exception('Cannot do cross-tabulation without a defined unit');
@@ -105,16 +107,14 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			if($group){ // if no groupling, falls through to the default
 				$crosstabbed=true;
 				$dataset=normalize_xtab(xtab($dataset,'year',$group,'amount','filter_crosstab'),'year',$paraset[$group]); 
+				//debug($paraset[$group]);
+				//debug($dataset[1]);
 				$row=array('','year');
 				$row=array_merge($row,$paraset[$group]);
 				$smarty->assign('tablehead',$row);
 			}
 			
-			if($_GET['mode']=='graph'){
-				debug(count($dataset));
-				debug($dataset);
-				throw new Exception($_GET['mode'].' -to be implemented');
-			}
+			
 		default:
 			$smarty->assign('p',$dataset);
 		}

@@ -70,25 +70,23 @@ try{
 	if($group){ // if no groupling, falls through to the default
 		$crosstabbed=true;
 		$dataset=normalize_xtab(xtab($dataset,'year',$group,'amount','filter_crosstab'),'year',$paraset[$group]); 
+	//debug($dataset);
 	}else{throw new Exception('Need something to crosstab on');}
 	//debug(count($dataset));
 	//debug($dataset);
-	$min=$dataset['min'];
+	$min_y=$dataset['min'];
 	unset($dataset['min']);
-	$max=$dataset['max'];
+	$max_y=$dataset['max'];
 	unset($dataset['max']);
-	
+	$max_x=count($dataset);
+	$min_x=0;
 	include('imagesettings.php');
-	$spectre=$dataset;
-	$x_title = 'channel';
-	$y_title = 'cps';
+	$x_title = 'year';
+	$y_title = $unit;
     $avg_y = 0.0;
-	$max_y=max($spectre);
-	$min_y=min($spectre);
 	$max_y=ceil($max_y);
-	$graph_y=$spectre;
 	$graph_n=$max_x;
-	$graph_n=$max_x;
+	//throw new Exception($graph_n);
 	$avg_y = array_sum($spectre)/$graph_n;	
 	$image = ImageCreate($right - $left, $bottom - $top);
 	$background_color = imagecolorallocate($image, 255, 255, 255);
@@ -98,18 +96,22 @@ try{
 	$white = imagecolorallocate($image, 255, 255, 255);
 	$black = imagecolorallocate($image, 0, 0, 0);
 	$red = imagecolorallocate($image, 255, 0, 0);
+	$kerning=1.2;
+	$leg_width=100;
+	$line=$char_height*$kerning;
+	$divider=$_GET['divider']*1?$_GET['divider']:10;
+	for($i = 1; $i < $graph_n; $i++ ) // Plotting years and vertical guide lines
+		{
+			$string=$dataset[$i]['year'];
+			if(!($string%$divider)){ 
+			$pt_x = $x_start + ($x_end-$x_start)*($i-$min_x)/($max_x-$min_x);
+			$pt_y = $y_end+$char_height*$kerning;
+			imagestring($image,4,$pt_x-2*$char_width,$pt_y,$string,$black);
+			imageline($image,$pt_x,$pt_y-$line*0.5 ,$pt_x,$y_start,$black); // Vertical guide line
+			}
+		}
 	
-	imagerectangle($image, $left, $top, $right - 1, $bottom - 1, $black );
-	imagerectangle($image, $x_start, $y_start, $x_end, $y_end, $grey );
-
-	for($i = 1; $i < $graph_n; $i++ )
-	{
-		$pt_x = $x_start + ($x_end-$x_start)*($i-$min_x)/($max_x-$min_x);
-		$pt_y = $y_end - ($y_end - $y_start)*($graph_y[$i]-$min_y)/($max_y-$min_y);
-		imagerectangle($image,$pt_x-1,$pt_y-1,$pt_x,$pt_y,$black);
-		#imagesetpixel($image,$pt_x,$pt_y,$red);
-	}
-throw new Exception('huh');
+//	throw new Exception('huh');
 	//syslog(LOG_WARNING,"min: ".min($graph_h));
 	
 	if ($setlog){
@@ -119,15 +121,9 @@ throw new Exception('huh');
 		$ymax=sprintf("%2.5f", $max_y);
 		$ymin=sprintf("%2.5f", $min_y);
 	}
-	imagestring($image, 4, $x_start + ($x_end - $x_start) / 2 - strlen($x_title) * $char_width / 2, $y_end, $x_title, $black);
+	imagestring($image, 4, $x_start + ($x_end - $x_start) / 2 - strlen($x_title) * $char_width / 2, $y_end+$char_height*$kerning*2, $x_title, $black);
 	imagestring($image, 4, $char_width, ($y_end - $y_start) / 2, $y_title, $black);
-	for($i=0;$i<6;$i++){
-		$pt_x = $x_start+ ($x_end - $x_start)*($i*100-$min_x)/($max_x-$min_x);
-		imageline($image,$pt_x,$y_start,$pt_x,$y_end,$grey);
-		imagestring($image, 4, $x_start + ($i*100/$max_x) * ($x_end - $x_start) - strlen($i*100) * $char_width / 2, $y_end, $i*100, $black);
-	
-	}
-	if($setlog){
+	if($setlog){ // Horisontale hjelpelinjer
 		for ($i=$min_y;$i<=$max_y;$i++){
 			$pt_y = $y_end - ($y_end - $y_start)*($i-$min_y)/($max_y-$min_y);
 			imageline($image,$x_start,$pt_y,$x_end,$pt_y,$grey);
@@ -143,16 +139,49 @@ throw new Exception('huh');
 			$minmark*=2;
 			$oom/=2;
 		}
-		for($i=$minmark;$i<=$maxmark;$i++){
+		for($i=$minmark;$i<=$maxmark;$i++){ 
 			$val=$i*$oom;
 			$pt_y = $y_end - ($y_end - $y_start)*($val-$min_y)/($max_y-$min_y);
-			
-			imageline($image,$x_start,$pt_y,$x_end,$pt_y,$grey);
+			imageline($image,$x_start,$pt_y,$x_end,$pt_y,$grey); 
 			$string=$i*$oom;
 			imagestring($image, 4, $x_start - (1+strlen($string)) * $char_width, $pt_y - $char_width, $string, $black);
 		}
 		// TODO lag -liner ved 
+		$leg_start=$_GET['legstart']*1?$_GET['legstart']*1:50;
+	if($leg_start<0){
+		$leg_start=$leg_start+$x_size-60;
+	}
+	$legend_box=array($right-($leg_width+$leg_start),30,$right-$leg_start,50+$char_height*$kerning*count($paraset[$group]));
+	imagerectangle($image, $left, $top, $right - 1, $bottom - 1, $black );
+	imagerectangle($image, $x_start, $y_start, $x_end, $y_end, $grey );
+	imagefilledrectangle($image,$legend_box[0],$legend_box[1],$legend_box[2],$legend_box[3],$white);
+	imagerectangle($image,$legend_box[0],$legend_box[1],$legend_box[2],$legend_box[3],$black);
 	
+	$leg_line=$char_height;
+	$leg_line_offset=5;
+	$leg_line_length=15;
+	$oldpt_x=false;
+	foreach($paraset[$group] as $par){
+		$color=imagecolorallocate($image,rand(0,255),rand(0,255),rand(0,255));
+		for($i = 1; $i < $graph_n; $i++ )
+		{
+			$pt_x = $x_start + ($x_end-$x_start)*($i-$min_x)/($max_x-$min_x);
+			$pt_y = $y_end - ($y_end - $y_start)*($dataset[$i][$par]-$min_y)/($max_y-$min_y);
+			imagerectangle($image,$pt_x-1,$pt_y-1,$pt_x+1,$pt_y+1,$color);
+			// imagestring($image,3,$pt_x,$pt_y,$dataset[$i][$par],$black);
+			if($oldpt_x){
+				imageline($image,$oldpt_x,$oldpt_y,$pt_x,$pt_y,$color);
+			}
+			$oldpt_x=$pt_x;
+			$oldpt_y=$pt_y;
+		}
+		$leg_line_x=$legend_box[1]+$leg_line+$char_height/2*$kerning;
+		imageline($image,$legend_box[0]+$leg_line_offset,$leg_line_x,$legend_box[1]+$legend_box[0]+$leg_line_offset+$leg_line_length,$leg_line_x,$color);
+		imagestring($image,4,$legend_box[0]+$leg_line_offset*2+$leg_line_length*3,$leg_line_x-$char_height*$kerning/2,$par,$black);
+		$leg_line+=$char_height*$kerning;
+		$oldpt_x=false; 
+	}
+
 	imagepng($image);
 	}		
 }

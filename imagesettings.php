@@ -1,7 +1,6 @@
 <?php
 	$left=0;
 	$min_x = 1;
-	$max_x = 511;
 	$x_left = 0;
 	$top = 0;
 	$x_size = 800;
@@ -15,7 +14,7 @@
 	$x_end = $x_start + $x_size;
 	$y_end = $y_start + $y_size;
 	$right = $x_start + $x_size + 40;
-	$bottom = $y_start + $y_size + $char_height * 1.5;
+	$bottom = $y_start + $y_size + $char_height * 1.5* 3;
 	$stretch_y= 1.05;
 	
 ?>
