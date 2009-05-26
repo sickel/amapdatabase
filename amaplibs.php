@@ -58,15 +58,18 @@ spaces removed. A number from 0 and upwards inserted to make it unique
 	return($id);
 }
 
-function xtab($dataset,$row,$col,$data,$invaliddata=false){
+function xtab($dataset,$row,$col,$data,$invaliddata=false,$continous=false){
 	// Does a basic cross-tabulation- removes data 
 	foreach($dataset as $datarow){
-		if(!$invaliddata){
+		if($contious && $datarow[$row] != $lastrow++){
+			$xtab[$datarow[$row]]='';
+		}
+		if(!$invaliddata){  // no validation - the function is not defined.
 			$xtab[$datarow[$row]][$datarow[$col]]=$datarow[$data];
 		}else{
-			// Numbers less than 0 indicates missing value
 			$xtab[$datarow[$row]][$datarow[$col]]=$invaliddata($datarow[$data])?'':$datarow[$data]; 
 		}
+		$lastrow=$datarow[$row];
 	}
 	return $xtab; 
 }

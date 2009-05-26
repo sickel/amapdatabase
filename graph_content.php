@@ -76,7 +76,7 @@ try{
 	//debug($dataset);
 	$min_y=$dataset['min'];
 	unset($dataset['min']);
-	$max_y=$dataset['max'];
+	$max_y=$dataset['max']*1.02; // multiply to get some space at the top
 	unset($dataset['max']);
 	$max_x=count($dataset);
 	$min_x=0;
@@ -161,19 +161,23 @@ try{
 	$leg_line_offset=5;
 	$leg_line_length=15;
 	$oldpt_x=false;
-	foreach($paraset[$group] as $par){
+	foreach($paraset[$group] as $par){ // plotting graph
 		$color=imagecolorallocate($image,rand(0,255),rand(0,255),rand(0,255));
 		for($i = 1; $i < $graph_n; $i++ )
 		{
-			$pt_x = $x_start + ($x_end-$x_start)*($i-$min_x)/($max_x-$min_x);
-			$pt_y = $y_end - ($y_end - $y_start)*($dataset[$i][$par]-$min_y)/($max_y-$min_y);
-			imagerectangle($image,$pt_x-1,$pt_y-1,$pt_x+1,$pt_y+1,$color);
-			// imagestring($image,3,$pt_x,$pt_y,$dataset[$i][$par],$black);
-			if($oldpt_x){
-				imageline($image,$oldpt_x,$oldpt_y,$pt_x,$pt_y,$color);
+			if(strlen($dataset[$i][$par])){
+				$pt_x = $x_start + ($x_end-$x_start)*($i-$min_x)/($max_x-$min_x);
+				$pt_y = $y_end - ($y_end - $y_start)*($dataset[$i][$par]-$min_y)/($max_y-$min_y);
+				imagerectangle($image,$pt_x-1,$pt_y-1,$pt_x+1,$pt_y+1,$color);
+				// imagestring($image,3,$pt_x,$pt_y,$dataset[$i][$par],$black);
+				if($oldpt_x){
+					imageline($image,$oldpt_x,$oldpt_y,$pt_x,$pt_y,$color);
+				}
+				$oldpt_x=$pt_x;
+				$oldpt_y=$pt_y;
+			}else{
+				$oldpt_x=false;
 			}
-			$oldpt_x=$pt_x;
-			$oldpt_y=$pt_y;
 		}
 		$leg_line_x=$legend_box[1]+$leg_line+$char_height/2*$kerning;
 		imageline($image,$legend_box[0]+$leg_line_offset,$leg_line_x,$legend_box[1]+$legend_box[0]+$leg_line_offset+$leg_line_length,$leg_line_x,$color);

@@ -1,8 +1,12 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
 <!-- report00.tpl-->
 <h2>{$header}</h2>
+<div id="content">
 <ul class="horizmenu">
-<li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
+	<li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
+	{if $graphquery}
+		<li><a href="{$smarty.server.SCRIPT_NAME}?{$graphquery}">Graph</a></li>
+	{/if}
 </ul>
 <table border="single">
 <tr>
@@ -24,5 +28,5 @@
 {/strip}
 {/section}
 </table>
-</body>
+</div></body>
 </html>

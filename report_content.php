@@ -87,8 +87,10 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 		case 'graph':
 			$template='contentgraph.tpl';
 			$smarty->assign('get',$_SERVER['QUERY_STRING']);
-			$break;
+			$smarty->assign('xtabquery',str_replace('mode=graph','mode=crosstab',$_SERVER['QUERY_STRING']));
+			break;
 		case 'crosstab':
+			$smarty->assign('graphquery',str_replace('mode=crosstab','mode=graph',$_SERVER['QUERY_STRING']));
 			if(!$unit){
 				throw new Exception('Cannot do cross-tabulation without a defined unit');
 			}

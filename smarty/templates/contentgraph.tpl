@@ -6,7 +6,8 @@ $Id$
 <div id="content">
 <ul class="horizmenu">
 <li><a href="{$smarty.server.SCRIPT_NAME}">New report</a></li>
-<li><a href="data.php">table list</a></li>
+<li><a href="{$smarty.server.SCRIPT_NAME}?{$xtabquery}">Dataset</a></li>
+<li><a href="data.php">Table list</a></li>
 <li><a href="index.php">Main menu</a></li>
 </ul></div>
 </body>

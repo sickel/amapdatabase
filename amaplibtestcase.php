@@ -247,7 +247,7 @@ class AMAPLibsTest extends PHPUnit_TestCase
 		$diff=array_diff($xtab,$testtab);
 		$this->assertFalse(count($diff),$diff);
 	}	
-		function testxtab_06(){
+	function testxtab_06(){
 		$table=array(
 			array('y'=>1,'n'=>'a','a'=>'-1'),
 			array('y'=>2,'n'=>'a','a'=>2),
@@ -273,6 +273,59 @@ class AMAPLibsTest extends PHPUnit_TestCase
 		$this->assertFalse(count($diff),$diff);
 	}	
 	
+	function testxtab_07(){
+		$table=array(
+			array('y'=>1,'n'=>'a','a'=>'-1'),
+			array('y'=>2,'n'=>'a','a'=>2),
+			array('y'=>4,'n'=>'a','a'=>3),
+			array('y'=>1,'n'=>'b','a'=>4),
+			array('y'=>2,'n'=>'b','a'=>5),
+			array('y'=>4,'n'=>'b','a'=>6),
+			array('y'=>1,'n'=>'c','a'=>7),
+			array('y'=>2,'n'=>'c','a'=>8),
+			array('y'=>4,'n'=>'c','a'=>9)
+		);
+		$testtab[1]['a']='-1';
+		$testtab[2]['a']=2;
+		$testtab[4]['a']=3;
+		$testtab[1]['b']=4;
+		$testtab[2]['b']=5;
+		$testtab[4]['b']=6;
+		$testtab[1]['c']=7;
+		$testtab[2]['c']=8;
+		$testtab[4]['c']=9;
+		$xtab=xtab($table,'y','n','a');
+		$diff=array_diff($xtab,$testtab);
+		$this->assertFalse(count($diff),$diff);
+	}	
+	function testxtab_08(){
+		$table=array(
+			array('y'=>1,'n'=>'a','a'=>'-1'),
+			array('y'=>2,'n'=>'a','a'=>2),
+			array('y'=>4,'n'=>'a','a'=>3),
+			array('y'=>1,'n'=>'b','a'=>4),
+			array('y'=>2,'n'=>'b','a'=>5),
+			array('y'=>4,'n'=>'b','a'=>6),
+			array('y'=>1,'n'=>'c','a'=>7),
+			array('y'=>2,'n'=>'c','a'=>8),
+			array('y'=>4,'n'=>'c','a'=>9)
+		);
+		$testtab[1]['a']='-1';
+		$testtab[2]['a']=2;
+		$testtab[3]['a']='';
+		$testtab[4]['a']=3;
+		$testtab[1]['b']=4;
+		$testtab[2]['b']=5;
+		$testtab[3]['b']='';
+		$testtab[4]['b']=6;
+		$testtab[1]['c']=7;
+		$testtab[2]['c']=8;
+		$testtab[3]['c']='';
+		$testtab[4]['c']=9;
+		$xtab=xtab($table,'y','n','a',false,true);
+		$diff=array_diff($xtab,$testtab);
+		$this->assertFalse(count($diff),$diff);
+	}
 	function testxtabnorm_00(){
 		$testtab[1]['a']='-1';
 		$testtab[2]['a']=2;
