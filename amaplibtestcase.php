@@ -323,7 +323,11 @@ class AMAPLibsTest extends PHPUnit_TestCase
 		$testtab[3]['c']='';
 		$testtab[4]['c']=9;
 		$xtab=xtab($table,'y','n','a',false,true);
-		$diff=array_diff($xtab,$testtab);
+		print_r($xtab);
+		print("<br />");
+		print_r($testtab);
+		$diff=array_intersect($testtab,$xtab);
+		print_r($diff);
 		$this->assertFalse(count($diff),$diff);
 	}
 	function testxtabnorm_00(){

@@ -1,7 +1,7 @@
 {include file='header.tpl' title='Prosjekter'}
 <div id="content">
 {$logonerror}
-<form action="index.php" method="post">
+<form action="{$action}" method="post">
 <p><label for="name">Brukernavn: </label>
 <input type="text" name="name" class="textfield" id="name" value="{$name}" /><br />
 <p><label for="name">Passord: </label>

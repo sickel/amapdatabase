@@ -5,6 +5,8 @@ $Id$
 */
 
 
+
+
 function dataset(){
 }
 
@@ -61,8 +63,9 @@ spaces removed. A number from 0 and upwards inserted to make it unique
 function xtab($dataset,$row,$col,$data,$invaliddata=false,$continous=false){
 	// Does a basic cross-tabulation- removes data 
 	foreach($dataset as $datarow){
+		//print("$datarow[$row]-$lastrow <=> $colvalue ${datarow[$col]}<br />");
 		if($contious && $datarow[$row] != $lastrow++){
-			$xtab[$datarow[$row]]='';
+			
 		}
 		if(!$invaliddata){  // no validation - the function is not defined.
 			$xtab[$datarow[$row]][$datarow[$col]]=$datarow[$data];
@@ -70,6 +73,7 @@ function xtab($dataset,$row,$col,$data,$invaliddata=false,$continous=false){
 			$xtab[$datarow[$row]][$datarow[$col]]=$invaliddata($datarow[$data])?'':$datarow[$data]; 
 		}
 		$lastrow=$datarow[$row];
+		$colvalue=$datarow[$col];
 	}
 	return $xtab; 
 }

@@ -32,10 +32,20 @@ $menu=array(
 	
 $smarty = new smarty_connect; // Sets up the standard connection to use smarty
 $template='report00.tpl';
+if($_POST['name']){ // logging in 
+	try{
+		logon();
+	}
+	catch(Exception $e){
+		$logonerror="<p><b>Ukjent brukernavn eller passord</b></p>";
+	}
+}	
 if(!($_COOKIE['username'] && $_COOKIE['userid'])){ 
 	// Should have been logged on here but is not logged in, so we'll try (again)
 	$smarty->assign('logonerror',$logonerror);
+	$smarty->assign('action',$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 	$smarty->display('login.tpl');
+	
 }else{ // Start the real work
 	try{
 		if(!($_GET)){
