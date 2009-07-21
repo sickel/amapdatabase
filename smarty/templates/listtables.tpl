@@ -1,4 +1,8 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
+<!-- 
+$Id$
+-->
+
 <div id="content">
 <h1>Tables</h1>
 <ul class="vertmenu">

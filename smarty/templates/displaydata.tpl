@@ -3,7 +3,9 @@
 <form action="{$smarty.server.SCRIPT_NAME}" method="post">
 <h1>{$tablename}</h1>
 <p>
-<!-- displaydata.tpl-->
+<!-- displaydata.tpl
+$Id$
+-->
 	<input type="hidden" id="table" name="table" value="{$table}" />
 	<input type="hidden" id="username" name="username" value="{$name}" />
 {section name=mysec loop=$p}

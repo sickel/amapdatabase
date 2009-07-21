@@ -1,5 +1,7 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
-<!-- report00.tpl-->
+<!-- report00.tpl
+$Id$
+-->
 <h2>{$header}</h2>
 <div id="content">
 <ul class="horizmenu">

@@ -1,4 +1,7 @@
 {include file='header.tpl' title='Prosjekter'}
+<!--
+$Id$
+-->
 <div id="content">
 {$logonerror}
 <form action="{$action}" method="post">

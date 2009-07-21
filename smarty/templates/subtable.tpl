@@ -1,5 +1,7 @@
 ﻿<p>
-<!-- subtable.tpl-->
+<!-- subtable.tpl
+$Id$
+-->
 <h2>{$subtable}</h2>
 <table border="single">
 {section name=mysec loop=$sub}

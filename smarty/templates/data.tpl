@@ -1,4 +1,8 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
+<!-- 
+$Id$
+-->
+
 <div id="content">
 <ul>
 {foreach from=$tables key=k item=v}

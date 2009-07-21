@@ -1,4 +1,7 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
+<!-- 
+$Id$
+-->
 <div id="content">
 <ul class="nodot">
 {foreach from=$m key=k item=v}

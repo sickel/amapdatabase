@@ -1,4 +1,7 @@
 ﻿{include file='header.tpl' title='Brukerregistrering'}
+<!--
+$Id$
+-->
 <div id="content">
 <form action="user.php" method="post"><p>
 <input type="hidden" value="{$id}" id="id" name="id" />

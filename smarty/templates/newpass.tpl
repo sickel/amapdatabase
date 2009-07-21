@@ -1,4 +1,9 @@
 {include file='header.tpl' title='Prosjekter'}
+
+<!-- 
+$Id$
+-->
+
 <div id="content">
 {$passworderr}
 

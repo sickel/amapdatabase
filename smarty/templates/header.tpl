@@ -4,6 +4,9 @@
 <title>{$app_name}</title>
 <link rel="stylesheet" type="text/css" media="screen,projection" href="amap.css" charset="utf-8" />
 </head>
+<!-- 
+$Id$
+-->
 
 <body>
 {if $error}

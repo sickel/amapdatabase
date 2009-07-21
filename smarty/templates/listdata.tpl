@@ -1,4 +1,7 @@
 ﻿{include file='header.tpl' title='Timeregistrering'}
+<!-- 
+$Id$
+-->
 
 <div id="content">
 <h1>{$table}</h1>
