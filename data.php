@@ -5,12 +5,15 @@
 /*
 $Id$
 */
-
+define('ABSMAXITEMS',50000); // THe largest number of items that can be displayed in lists
 require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
 require_once 'amaplibs.php';
 require('./smarty/Smarty_Connect.php');
 $setsize=$_GET['n']?$_GET['n']:30; // number of elements per page in list mode
-$setsize=bracket($setsize,10,501);
+$setsize=bracket($setsize,10,ABSMAXITEMS);
+$nsub=$_GET['nsub']?$_GET['nsub']:30; // number of elements in a subtable
+$nsub=bracket($nsub,10,ABSMAXITEMS);
+
 $prefix='';
 define('MAXFIELDSIZE',60); // Largest allowable size of a field
 define('DEFFIELDSIZE',8);  
@@ -72,7 +75,7 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			//debug($ntot);
 			$pages=ceil($ntot[0]/$setsize); 
 			$offset=bracket($_GET['offset'],0,$ntot[0]);
-			$activepage=ceil($offset/$setsize);
+			$activepage=floor($offset/$setsize);
 			$first=bracket($activepage-1,1,bracket($pages-4,1,$pages));
 			$last=bracket($first+4,1,$pages);
 			if($first>1){$browsepages[]=1;}
@@ -254,11 +257,14 @@ if(!($_COOKIE['username'] && $_COOKIE['userid'])){
 			$error=$sqlh->errorInfo();
 			if($error[0]>'0'){throw new Exception("Subtable ${_GET['subtab']} does not exist");}
 			$nrows=$sqlh->rowCount();
-			if($nrows<=$setsize){
+			if($nrows<=$nsub){
 				$smarty->assign('subtable',$_GET['subtab']);
 				$smarty->assign('sub',$sqlh->fetchAll(PDO::FETCH_ASSOC));
 			}else{
-				throw new Exception("Too many items ($nrows)");
+				$exception=$nrows>ABSMAXITEMS?
+					"More items ($nrows) than can be displayed (".ABSMAXITEMS.")":
+					"Too many ($nrows) items in subtable <a href=\"data.php?${_SERVER['QUERY_STRING']}&nsub=$nrows\">Show all</a>";
+				throw new Exception($exception);
 			}
 		}
 		

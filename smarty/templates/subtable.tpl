@@ -6,7 +6,7 @@
 {strip}
 	<tr><td><a href="data.php?table={$subtable}&amp;id={$sub[mysec].id}"> {$sub[mysec].id}</a></td>
 	{foreach from=$sub[mysec] key=k item=value}
-		{if ($k!='id') and ($k!=$tableid)}
+		{if ($k!='id') and ($k!=$tableid) and ($k!='addtime') and ($k!='username')}
 		<td>{$value}</td>
 		{/if}
 	{/foreach}
