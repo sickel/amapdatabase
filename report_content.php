@@ -13,7 +13,7 @@ function filter_crosstab($value){
 
 
 
-require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs2.php';
 require_once 'amaplibs.php';
 require('./smarty/Smarty_Connect.php');
 $setsize=$_GET['n']?$_GET['n']:30; // number of elements per page in list mode

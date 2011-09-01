@@ -2,12 +2,22 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">	
 <?php
 $tablename="user";
-require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs.php';
-$prefix='amap_';
+require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs2.php';
 require('./smarty/Smarty_Connect.php');
 $smarty = new smarty_connect; // Sets up the standard connection to use smarty
 
-if($_GET['logout']==1){
+
+
+error_reporting(E_ALL ^ E_NOTICE);
+$savepass=$_POST['SavePass'];
+$ac_logout=$_GET['logout']==1;
+$ac_newpass=$_GET['newpass'];
+error_reporting(E_ALL);
+
+
+
+
+if($ac_logout){
 // Deletes current credenciales when a user is logged off
 		$_COOKIE['username']="";
 		$_COOKIE['userid']="";
@@ -15,7 +25,7 @@ if($_GET['logout']==1){
 		setcookie('userid',"");
 }
 
-if($_POST['SavePass']){ // Oppdaterer passordet
+if($savepass){ // Oppdaterer passordet
 	try{
 		if($_POST['password1']!=$_POST['password2']){throw new Exception('New passwords doesn\'t match');} 
 		$sqlh=$dbh->prepare("update ${prefix}user set password=md5(?) where id=? and password=md5(?)");
@@ -30,9 +40,10 @@ if($_POST['SavePass']){ // Oppdaterer passordet
 		$_GET['newpass']=1;
 	}
 }
-if($_GET['newpass']){ // Form to change password
+if($ac_newpass){ // Form to change password
 	$smarty->display('newpass.tpl');
 }
+
 if($_POST['name']){ // logging in 
 	try{
 		logon();
@@ -41,12 +52,15 @@ if($_POST['name']){ // logging in
 		$logonerror="<p><b>Ukjent brukernavn eller passord</b></p>";
 	}
 }	
+error_reporting(E_ALL ^ E_NOTICE);
 if(!($_COOKIE['username'] && $_COOKIE['userid'])){
+error_reporting(E_ALL);
 	// Should have been logged on here but is not logged in, so we'll try (again)
 	$smarty->assign('logonerror',$logonerror);
 	$smarty->assign('action',$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 	$smarty->display('login.tpl');
 }elseif(!$_GET['newpass']){ // Start the real work
+error_reporting(E_ALL);
 	$name=$_COOKIE['username'];
 	$year=date('Y');
 	$userid=$_COOKIE['userid'];	
