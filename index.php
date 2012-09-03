@@ -26,14 +26,14 @@ if($ac_logout){
 }
 
 if($savepass){ // Oppdaterer passordet
-	try{
-		if($_POST['password1']!=$_POST['password2']){throw new Exception('New passwords doesn\'t match');} 
-		$sqlh=$dbh->prepare("update ${prefix}user set password=md5(?) where id=? and password=md5(?)");
-		$params=array($_POST['password1'],$_COOKIE['userid'],$_POST['oldpassword']);
-		$sqlh->execute($params);
-		// If no rows are affected, the old password is probably wrong. Might also be a problem with the user id from the coockie, but that is not as probable
-		if(!$sqlh->rowCount()){throw new Exception('Could not update, old password might be wrong');} 
-		$smarty->assign('headercomment','Password changed');
+    try{
+	if($_POST['password1']!=$_POST['password2']){throw new Exception('New passwords doesn\'t match');} 
+	$sqlh=$dbh->prepare("update ${prefix}user set password=md5(?) where id=? and password=md5(?)");
+	$params=array($_POST['password1'],$_COOKIE['userid'],$_POST['oldpassword']);
+	$sqlh->execute($params);
+	// If no rows are affected, the old password is probably wrong. Might also be a problem with the user id from the coockie, but that is not as probable
+	if(!$sqlh->rowCount()){throw new Exception('Could not update, old password might be wrong');} 
+	    $smarty->assign('headercomment','Password changed');
 	}
 	catch (Exception $e){ // If the password is not changed, inform the user and set up the form again
 		$smarty->assign('passworderr','<p><b>'.$e->getMessage().'</b></p>');
